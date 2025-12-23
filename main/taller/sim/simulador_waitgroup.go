@@ -46,7 +46,7 @@ func (s *SimuladorWaitGroup) workerEntrada(
 			continue
 		}
 
-		// aqui se para
+		// INACTIVIDAD
 		if !estados.E.GetActivo() {
 			colaIn.Push(v)
 			time.Sleep(100 * time.Millisecond)
@@ -99,7 +99,7 @@ func (s *SimuladorWaitGroup) workerMecanico(
 			continue
 		}
 
-		// aqui se para
+		// INACTIVIDAD
 		if !estados.E.GetActivo() {
 			colaIn.Push(v)
 			time.Sleep(100 * time.Millisecond)
@@ -154,7 +154,7 @@ func (s *SimuladorWaitGroup) workerLimpieza(
 			continue
 		}
 
-		// aqui se para
+		// INACTIVIDAD
 		if !estados.E.GetActivo() {
 			colaIn.Push(v)
 			time.Sleep(100 * time.Millisecond)
@@ -209,14 +209,14 @@ func (s *SimuladorWaitGroup) workerRevision(
 			continue
 		}
 
-		// aqui se para
+		// INACTIVIDAD
 		if !estados.E.GetActivo() {
 			colaIn.Push(v)
 			time.Sleep(100 * time.Millisecond)
 			continue
 		}
 
-		// Revisamos si el taller está activo y filtramos soloCategoria
+		// SOLOCATEGORIA
 		if estados.E.GetPrioridad() != estados.CatNinguna &&
 			!estados.CategoriaCoincide(estados.E.GetPrioridad(), v.Incidencia.Tipo) {
 			colaIn.Push(v)

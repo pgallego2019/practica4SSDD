@@ -6,8 +6,7 @@ import (
 	"sync"
 )
 
-// Menu que procesa los numeros de la mutua
-// y actualiza el estado del taller en consecuencia.
+// Menu que procesa los numeros de la mutua y actualiza el estado del taller en consecuencia.
 
 type Categoria int
 
@@ -37,10 +36,10 @@ func CategoriaCoincide(cat Categoria, tipo models.Especialidad) bool {
 }
 
 type EstadoTaller struct {
-	activo        bool         // True = activo, False = inactivo
-	soloCategoria Categoria    // 0 = ninguna, 1=A, 2=B, 3=C
-	prioridad     Categoria    // 0 = normal, 1=A, 2=B, 3=C
-	mutex         sync.RWMutex // Necesario RW
+	activo        bool      // True = activo, False = inactivo
+	soloCategoria Categoria // 0 = ninguna, 1=A, 2=B, 3=C
+	prioridad     Categoria // 0 = normal, 1=A, 2=B, 3=C
+	mutex         sync.RWMutex
 }
 
 func (e *EstadoTaller) SetActivo(v bool) {
@@ -90,7 +89,7 @@ func ProcesarEstado(n int) {
 	case 0:
 		estadoInactivo()
 	case 1:
-		estadoUno() // o bien go estadoUno()
+		estadoUno()
 	case 2:
 		estadoDos()
 	case 3:

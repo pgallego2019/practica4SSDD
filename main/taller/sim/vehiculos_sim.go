@@ -10,7 +10,6 @@ import (
 
 const variacionMax = 0.15 // Mejor entre 10-20%
 
-// Para representar las 4 fases por las que pasan los vehículos
 type Fase int
 
 const (
@@ -35,7 +34,6 @@ func (f Fase) String() string {
 	}
 }
 
-// varía el tiempo de fase según una variación máxima
 func variacionTiempoFase(tiempoBase int) time.Duration {
 	r := (rand.Float64()*2 - 1) * variacionMax
 

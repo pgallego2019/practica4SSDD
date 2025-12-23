@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-// Estructura para almacenar métricas de la simulación
 type Metricas struct {
 	VehiculosPorFase   map[Fase]int
 	TiemposPorVehiculo map[int]time.Duration
@@ -24,14 +23,12 @@ func NuevaMetricas() *Metricas {
 	}
 }
 
-// Métricas por fase
 type MetricasFase struct {
 	Min, Max, Total time.Duration
 	Contador        int
 	mutex           sync.Mutex
 }
 
-// Inicializa estructuras para métricas adicionales
 func InicializarMetricasAux() map[Fase]*MetricasFase {
 	return map[Fase]*MetricasFase{
 		FaseEntrada:  {Min: time.Hour, Max: 0},
@@ -41,7 +38,6 @@ func InicializarMetricasAux() map[Fase]*MetricasFase {
 	}
 }
 
-// Actualiza métricas por fase
 func (m *MetricasFase) Registrar(duracion time.Duration) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
@@ -55,7 +51,6 @@ func (m *MetricasFase) Registrar(duracion time.Duration) {
 	m.Contador++
 }
 
-// Devuelve tiempo promedio por fase
 func (m *MetricasFase) Promedio() time.Duration {
 	if m.Contador == 0 {
 		return 0
@@ -70,7 +65,6 @@ func (m *Metricas) RegistrarVehiculo(v *models.Vehiculo, fase Fase, duracion tim
 	m.TiemposPorVehiculo[v.Incidencia.ID] += duracion
 }
 
-// Muestra métricas de todas las fases
 func imprimirMetricasPorFase(aux map[Fase]*MetricasFase) {
 	fmt.Println("=== Métricas por fase ===")
 	for fase, m := range aux {
@@ -78,43 +72,3 @@ func imprimirMetricasPorFase(aux map[Fase]*MetricasFase) {
 			fase, m.Min, m.Promedio(), m.Max, m.Contador)
 	}
 }
-
-/*
-// Función genérica de worker que registra métricas
-func LanzarWorkerMetricas(
-	colaIn, colaOut *ColaPrioritaria,
-	sem chan struct{},
-	fase Fase,
-	metricas *Metricas,
-	aux map[Fase]*MetricasFase,
-	tiempoPorVehiculo *TiempoVehiculo,
-	finalWg *sync.WaitGroup,
-) {
-	go func() {
-		for {
-			<-colaIn.notify
-			v := colaIn.PopFront()
-			if v == nil {
-				continue
-			}
-
-			<-sem
-			start := time.Now()
-			time.Sleep(variacionTiempoFase(v.Incidencia.TiempoFase))
-			sem <- struct{}{}
-
-			duracion := time.Since(start)
-
-			metricas.RegistrarVehiculo(v, fase, duracion)
-			aux[fase].Registrar(duracion)
-			tiempoPorVehiculo.Registrar(v.Incidencia.ID, duracion)
-
-			if colaOut != nil {
-				colaOut.Push(v)
-			} else if finalWg != nil {
-				finalWg.Done()
-			}
-		}
-	}()
-}
-*/

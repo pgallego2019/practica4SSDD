@@ -6,12 +6,15 @@ import (
 	"time"
 )
 
-// Ejecuta los escenarios con ambos simuladores y compara resultados
+// Ejecuta los escenarios y compara resultados
 func TestComparativaEscenarios(t *testing.T) {
-	escenarios := []struct{ numA, numB, numC int }{
-		{10, 10, 10},
-		{20, 5, 5},
-		{5, 5, 20},
+	escenarios := []struct{ numA, numB, numC, nPlazas, nMecanicos int }{
+		{10, 10, 10, 6, 3},
+		{10, 10, 10, 2, 4},
+		{20, 5, 5, 6, 3},
+		{20, 5, 5, 2, 4},
+		{5, 5, 20, 6, 3},
+		{5, 5, 20, 2, 4},
 	}
 
 	for _, esc := range escenarios {
@@ -19,20 +22,25 @@ func TestComparativaEscenarios(t *testing.T) {
 
 		fmt.Println("\n--- Simulación WaitGroup ---")
 		var wgSim = NewSimuladorWaitGroup(nil)
-		EjecutarEscenarioSimulador(t, *wgSim, esc.numA, esc.numB, esc.numC)
+		EjecutarEscenarioSimulador(t, *wgSim, esc.numA, esc.numB, esc.numC, esc.nPlazas, esc.nMecanicos)
 	}
 
 	imprimirTablaResultados()
 }
 
 // Ejecuta un escenario con un simulador
-func EjecutarEscenarioSimulador(t *testing.T, simulador SimuladorWaitGroup, numA, numB, numC int) {
+func EjecutarEscenarioSimulador(
+	t *testing.T,
+	simulador SimuladorWaitGroup,
+	numA, numB, numC int,
+	nPlazas, nMecanicos int,
+) {
 	//NO imprimir los cambios de fase (muchas lineas, dificil ver bien el test)
 	simulador.SetVerbose(false)
 
 	// Generar vehículos
 	vehiculos := GenerarVehiculosPorCategorias(numA, numB, numC)
-	totalVehiculos := len(vehiculos) // 30
+	totalVehiculos := len(vehiculos)
 
 	// Inicializar métricas
 	metricas := NuevaMetricas()
@@ -40,15 +48,13 @@ func EjecutarEscenarioSimulador(t *testing.T, simulador SimuladorWaitGroup, numA
 	aux := InicializarMetricasAux()
 
 	// Ejecutar simulación
-	nPlazas := 10
-	nMecanicos := 2
 	simulador.RunSim(vehiculos, 1, totalVehiculos, nPlazas, nMecanicos, metricas, tiempoPorVehiculo, aux)
 
 	imprimirMetricasPorFase(aux)
 
 	// Mostrar resumen
 	fmt.Printf("Vehículos generados: %dA/%dB/%dC (total %d)\n", numA, numB, numC, totalVehiculos)
-	fmt.Printf("Tiempo total simulación: %v\n", metricas.Fin.Sub(metricas.Inicio))
+	fmt.Printf("Tiempo total simulación: %.3fs\n", metricas.Fin.Sub(metricas.Inicio).Seconds())
 
 	// Tiempos por vehículo
 	tiempoTotal := time.Duration(0)
@@ -56,12 +62,12 @@ func EjecutarEscenarioSimulador(t *testing.T, simulador SimuladorWaitGroup, numA
 		tiempoTotal += t
 	}
 	if totalVehiculos > 0 {
-		fmt.Printf("Tiempo promedio por vehículo: %v\n", tiempoTotal/time.Duration(totalVehiculos))
+		fmt.Printf("Tiempo promedio por vehículo: %.3fs\n", (tiempoTotal / time.Duration(totalVehiculos)).Seconds())
 	}
 
 	// Tiempo por categoría
 	imprimirTiempoPorCategoria(vehiculos, tiempoPorVehiculo)
 
 	// Guardar resultados
-	registrarResultado(fmt.Sprintf("%dA/%dB/%dC", numA, numB, numC), metricas)
+	registrarResultado(fmt.Sprintf("%dA/%dB/%dC", numA, numB, numC), nPlazas, nMecanicos, metricas)
 }
